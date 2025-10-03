@@ -62,13 +62,13 @@ public class RatesService {
                 .baseUrl("https://api.exchangerate-api.com/v4/latest")
                 .build();
 
-        CompletableFuture<String> currencyRate = webClient.get()
+        String currencyRate = webClient.get()
                 .uri("/" + rate)
                 .retrieve()
                 .bodyToMono(String.class)
-                .toFuture();
+                .block();
 
-        return readJson(currencyRate.join());
+        return readJson(currencyRate);
     }
 
     private CurrencyRate readJson(String json) throws JsonProcessingException {
