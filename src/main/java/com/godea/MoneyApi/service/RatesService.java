@@ -3,10 +3,8 @@ package com.godea.MoneyApi.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.godea.MoneyApi.metrics.RequestMetrics;
 import com.godea.MoneyApi.model.CurrencyRate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,39 +20,38 @@ urls:
 
 @Service
 public class RatesService {
-
     public Map<String, CurrencyRate> allRates() throws ExecutionException, InterruptedException, JsonProcessingException {
         WebClient webClient = WebClient.builder()
-                .baseUrl("https://api.exchangerate-api.com/v4/latest")
+                .baseUrl("http://localhost:8080/api")
                 .build();
 
-        CompletableFuture<String> usdFuture = webClient.get()
-                .uri("/USD")
+        CompletableFuture<CurrencyRate> usdRate = webClient.get()
+                .uri("/usd")
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(CurrencyRate.class)
                 .toFuture();
 
-        CompletableFuture<String> eurFuture = webClient.get()
-                .uri("/EUR")
+        CompletableFuture<CurrencyRate> eurRate = webClient.get()
+                .uri("/eur")
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(CurrencyRate.class)
                 .toFuture();
 
-        CompletableFuture<String> rubFuture = webClient.get()
-                .uri("/RUB")
+        CompletableFuture<CurrencyRate> rubRate = webClient.get()
+                .uri("/rub")
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(CurrencyRate.class)
                 .toFuture();
 
         CompletableFuture.allOf(
-                usdFuture,
-                eurFuture,
-                rubFuture
+                usdRate,
+                eurRate,
+                rubRate
         ).join();
 
-        CurrencyRate currencyRateUsd = readJson(usdFuture.get());
-        CurrencyRate currencyRateEur = readJson(eurFuture.get());
-        CurrencyRate currencyRateRub = readJson(rubFuture.get());
+        CurrencyRate currencyRateUsd = usdRate.get();
+        CurrencyRate currencyRateEur = eurRate.get();
+        CurrencyRate currencyRateRub = rubRate.get();
 
         return Map.of("usd", currencyRateUsd, "eur", currencyRateEur, "rub", currencyRateRub);
     }

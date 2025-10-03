@@ -51,14 +51,8 @@ public class RatesController {
         }
 
         CurrencyRate currencyRate = ratesService.getCurrentRate(rate);
-        StringBuilder result = new StringBuilder();
-        result.append(currencyRate.getProvider())
-                .append("\n")
-                .append(currencyRate.getDate())
-                .append("\n")
-                .append(currencyRate.getRates());
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(currencyRate);
     }
 
     @GetMapping("/metrics")
