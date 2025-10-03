@@ -1,0 +1,20 @@
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6380
+      connect-timeout: 2000ms
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.godea.MoneyApi: DEBUG
+    org.springframework.cache: DEBUG
+    org.springframework.data.redis.cache: DEBUG
